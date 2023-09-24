@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite App</title>
+  </head>
+  <body>
+    <div class="min-h-screen w-full px-8 py-8" x-data="migrator()">
+      <div class="flex flex-col justify-center items-center w-full">
+        <h1 class="text-4xl font-bold mb-4">Laravel Migrator</h1>
+        <p class="text-xl mb-4">Migrate your SQL database to Laravel migrations</p>
+        <template x-if="$store.errors.length > 0">
+          <div class="flex flex-col justify-center items-center w-full">
+            <div class="flex flex-row justify-center items-center w-full">
+              <h2 class="text-2xl font-bold mr-4">Errors</h2>
+              <template x-for="(error, index) in $store.errors" :key="index">
+                <p x-text="error" class="mr-2 text-red-500"></p><p x-text="index + ':'"></p>
+              </template>
+            </div>
+          </div>
+        </template>
+        <div class="flex flex-col md:flex-row justify-center items-center w-full">
+          <div class="flex flex-col px-4 py-8 w-full">
+            <label for="sql" class="text-xl mb-4">SQL</label>
+            <textarea
+              id="sql"
+              x-model="sql"
+              x-on:change="inputChange"
+              x-on:input="inputChange"
+              x-on:keyup="inputChange"
+              x-on:cut="inputChange"
+              x-on:paste="migrate($event.clipboardData.getData('text/plain'))"
+              class="w-full h-96 border border-gray-300 rounded-lg p-4"
+              placeholder="Paste your SQL here"
+            ></textarea>
+          </div>
+          <div class="flex flex-col px-4 py-8 w-full">
+            <label for="migrations" class="text-xl mb-4">Migrations</label>
+            <textarea
+              id="migrations"
+              x-model="migrations"
+              class="w-full h-96 border border-gray-300 rounded-lg p-4"
+              placeholder="Your Laravel migrations will appear here"
+            ></textarea>
+          </div>
+        </div>
+        <div class="w-full flex justify-center items-center mt-6">
+          <button
+            @click="migrate()"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Migrate
+          </button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
