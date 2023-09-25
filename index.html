@@ -2,15 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>Lara Migrator</title>
   </head>
   <body>
     <div class="min-h-screen w-full px-8 py-8" x-data="migrator()">
       <div class="flex flex-col justify-center items-center w-full">
-        <h1 class="text-4xl font-bold mb-4">Laravel Migrator</h1>
-        <p class="text-xl mb-4">Migrate your SQL database to Laravel migrations</p>
+        <img src="/logo.png" alt="Lara Migrator" class="h-[100px]" />
+        <p class="text-md mb-4">Migrate your SQL database to Laravel migrations</p>
         <template x-if="$store.errors.length > 0">
           <div class="flex flex-col justify-center items-center w-full">
             <div class="flex flex-row justify-center items-center w-full">
