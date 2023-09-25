@@ -1,6 +1,7 @@
 export const schemasplitregex = /,(?=(?:(?:[^']*'[^']*')*[^']*$)(?:(?:[^"]*"[^"]*")*[^"]*$)(?![^\(]*\)))/;
 
-export const types = {
+export const types = (type) => {
+    const types = {
     'string': 'string',
     'int': 'integer',
     'integer': 'integer',
@@ -40,21 +41,32 @@ export const types = {
     'multilinestring': 'multiLineString',
     'multipolygon': 'multiPolygon',
     'geometrycollection': 'geometryCollection'
+    }
+
+    if(!types[type]) throw new Error(`Invalid data type ${type}`);
+
+    return types[type];
 }
 
-export const modifiers = {
-    'unsigned': 'unsigned',
-    'null': 'nullable',
-    'not null': 'nullable',
-    'default': 'default',
-    'charset': 'charset',
-    'collate': 'collate',
-    'stored': 'storedAs',
-    'virtual': 'virtualAs',
-    'after': 'after',
-    'first': 'first',
-    'comment': 'comment'
-}
+export const modifiers = (type, ignoreError = false) => {
+    const types = {
+        'unsigned': 'unsigned',
+        'null': 'nullable',
+        'not null': 'nullable',
+        'default': 'default',
+        'charset': 'charset',
+        'collate': 'collate',
+        'stored': 'storedAs',
+        'virtual': 'virtualAs',
+        'after': 'after',
+        'first': 'first',
+        'comment': 'comment'
+    }
+
+    if(!types[type] && !ignoreError) throw new Error(`Invalid modifier ${type}`);
+
+    return types[type];
+} 
 
 export function detectIfValidSQL(sql) {
     const sqlRegex = /CREATE TABLE|INSERT INTO|UPDATE|DELETE FROM|DROP TABLE|ALTER TABLE|CREATE DATABASE|DROP DATABASE|USE|SELECT|SHOW|DESCRIBE|TRUNCATE TABLE|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER/i;

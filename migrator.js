@@ -111,16 +111,19 @@ export const makeMigration = (schema) => {
     })
     .join("").toLowerCase();
 
+  if (!type) {
+    throw new Error(`Invalid type ${type} for column ${name}`);
+  }
+
   const length = splitted[1]?.split("(")[1]?.split(")")[0] || undefined;
 
-  let migration = `\$table->${types[type]}('${name}'${
+  let migration = `\$table->${types(type)}('${name}'${
     length ? `, '${length}'` : ""
   })`;
 
   for (let i = 2; i < splitted.length; i++) {
     const modifier = splitted[i].toLowerCase();
     if (
-      modifiers[modifier] &&
       ![
         "default",
         "not",
@@ -132,12 +135,13 @@ export const makeMigration = (schema) => {
         "first",
         "comment",
       ].includes(modifier)
+      && modifiers(modifier, true)
     ) {
-      migration += `->${modifiers[modifier]}()`;
+      migration += `->${modifiers(modifier)}()`;
     }
 
     if (modifier === "not") {
-      migration += `->${modifiers[splitted[i + 1].toLowerCase()]}(false)`;
+      migration += `->${modifiers(splitted[i + 1].toLowerCase())}(false)`;
       i++;
     }
 
@@ -153,7 +157,7 @@ export const makeMigration = (schema) => {
         "comment",
       ].includes(modifier)
     ) {
-      migration += `->${modifiers[modifier]}('${splitted[i + 1].replace(/'/g,"")}')`;
+      migration += `->${modifiers(modifier)}('${splitted[i + 1].replace(/'/g,"")}')`;
       i++;
     }
   }

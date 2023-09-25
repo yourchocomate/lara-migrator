@@ -17,21 +17,26 @@ Alpine.data("migrator", () => ({
         console.log("migrator");
     },
 
-    migrate: function (text) {
-      const sql = this.sql + '\n' + (text || "");
+    migrate: function (text = "") {
+      const sql = this.sql + (text ? '\n' + (text || "") : "");
+
+      if(sql.length === 0) {
+        this.migrations = "";
+        return;
+      }
+
       if(!detectIfValidSQL(sql)) {
           Alpine.store("errors").push("Invalid SQL");
           emitter.emit("error:cleanup", { after: 2000 }); 
           return;
       }
 
-      this.migrations = differBlocksByStatementType(sql).join("\n\n");
-    },
-
-    inputChange: function() {
-        if(this.sql.length < 1) {
-            this.migrations = "";
-        }
+      try {
+        this.migrations = differBlocksByStatementType(sql).join("\n\n");
+      } catch (error) {
+        Alpine.store("errors").push(error.message);
+        emitter.emit("error:cleanup", { after: 2000 }); 
+      }
     }
 
 }));
