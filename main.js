@@ -2,20 +2,33 @@ import "./style.css";
 import Alpine from "alpinejs";
 window.alpine = Alpine;
 
-import { emitter } from  "./emitter.js";
-import { differBlocksByStatementType } from "./migrator";
+import { emitter } from  "./emitter";
+import { generateMigrations } from "./migrator";
 import { detectIfValidSQL } from "./util";
 
 Alpine.store("errors", []);
+
+/**
+ * @typedef {object} AlpineData
+ * @property {string} sql
+ * @property {string} migrations
+ * @property {function} init
+ * @property {function} migrate
+ */
 
 Alpine.data("migrator", () => ({
     sql: "",
     migrations: "",
 
     init() {
-        // this.migrate();
         console.log("migrator");
     },
+
+    /**
+     * Executes migration
+     * @param {string} text 
+     * @returns {void}
+     */
 
     migrate: function (text = "") {
       const sql = this.sql + (text ? '\n' + (text || "") : "");
@@ -32,7 +45,7 @@ Alpine.data("migrator", () => ({
       }
 
       try {
-        this.migrations = differBlocksByStatementType(sql).join("\n\n");
+        this.migrations = generateMigrations(sql).join("\n\n");
       } catch (error) {
         Alpine.store("errors").push(error.message);
         emitter.emit("error:cleanup", { after: 2000 }); 

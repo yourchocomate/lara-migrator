@@ -1,6 +1,12 @@
 import { customSplit, modifiers, types } from "./util";
 
-export const differBlocksByStatementType = (sql) => {
+/**
+ * Function to generate migrations from SQL
+ * @param {string} sql 
+ * @returns {string[]} migrations
+ */
+
+export const generateMigrations = (sql) => {
   let blocks = [];
   //   const statements = /CREATE TABLE|DROP TABLE|ALTER TABLE|TRUNCATE TABLE/gi;
   const statements = /CREATE TABLE|INSERT INTO/gi;
@@ -61,6 +67,14 @@ export const differBlocksByStatementType = (sql) => {
   return migrations;
 }
 
+/**
+ * Generates migration from schema
+ * @param {string} table 
+ * @param {string[]} schema 
+ * @param {string} type 
+ * @returns {string}
+ */
+
 export const getmigration = (table, schema, type) => {
   type = type.split(" ");
 
@@ -76,6 +90,12 @@ public function up(): void
 }
 `;
 };
+
+/**
+ * Parses schema and generates migration
+ * @param {string} schema 
+ * @returns {string} migration
+ */
 
 export const makeMigration = (schema) => {
   //  @regex: to split schema by spaces but ignore spaces inside quotes
@@ -166,7 +186,12 @@ export const makeMigration = (schema) => {
   return migration;
 };
 
-
+/**
+ * Handles different types of keys and indexes and parses them to generate migration
+ * @param {string} type 
+ * @param {string} sql 
+ * @returns {string}
+ */
 export const handleKeysIndexes = (type, sql) => {
   switch (type) {
     case "primary":
@@ -184,12 +209,24 @@ export const handleKeysIndexes = (type, sql) => {
   }
 }
 
+/**
+ * Split indexes for differnt types of sql statements
+ * @typedef {object} KeyBreakpoints
+ */
+
 export const keyBreakpoints = {
   "primary": 2,
   "key": 2,
   "fulltext": 1,
   "unique": 3,
 }
+
+/**
+ * Generates migration for keys and indexes
+ * @param {string} sql 
+ * @param {string} type 
+ * @returns {string}
+ */
 
 export const handleKey = (sql, type) => {
   const splitted = sql.split(" ");
@@ -203,6 +240,12 @@ export const handleKey = (sql, type) => {
   return columns.length > 1 ? `\$table->${datatype}([${columns.map(c => `'${c}'`).join(",")}]);\n` : `\$table->${datatype}('${columns[0]}');\n`;
 }
 
+/**
+ * Handles constraints | foreign keys
+ * @param {string} sql 
+ * @returns {string}
+ */
+
 export const handleConstraint = (sql) => {
   const splitted = sql.split(" ");
   const type = splitted[2].toLowerCase();
@@ -211,6 +254,12 @@ export const handleConstraint = (sql) => {
   }
   return "";
 }
+
+/**
+ * Handles foreign keys and generates migration
+ * @param {string} sql 
+ * @returns {string}
+ */
 
 export const handleForeign = (sql) => {
   const splitted = sql.split(" ");
