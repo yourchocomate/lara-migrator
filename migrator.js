@@ -50,7 +50,6 @@ export const generateMigrations = (sql) => {
       }
       // @regex: to remove backticks
       table = splitted[2].replace(/`/g, "");
-      // schema = splitted.slice(3).join(" ");
     }
 
     // @regex: to remove parenthesis from schema start and end
@@ -60,9 +59,7 @@ export const generateMigrations = (sql) => {
     blocks.push({ schema, operation, table, modifier });
   }
   
-  const migrations = blocks.map((block) => {
-    return getmigration(block.table, block.schema, block.operation);
-  });
+  const migrations = blocks.map(block => getmigration(block.table, block.schema, block.operation));
 
   return migrations;
 }
@@ -98,6 +95,10 @@ public function up(): void
  */
 
 export const makeMigration = (schema) => {
+
+  const statements = ["default","charset","collate","stored","virtual","after","first","comment","not"];
+  const basestatements = ["primary","key","constraint","fulltext","unique"];
+
   //  @regex: to split schema by spaces but ignore spaces inside quotes
   const splitted = schema.split(
     / (?=(?:(?:[^']*'[^']*')*[^']*$)(?:(?:[^"]*"[^"]*")*[^"]*$)(?![^\(]*\)))/
@@ -105,35 +106,15 @@ export const makeMigration = (schema) => {
   const name = splitted[0].replace(/`/g, "");
   const namelower = name.toLowerCase()
 
-  if (namelower === "id") {
-    return "\$table->id();\n";
-  }
-
-  if (
-    [
-      "primary",
-      "key",
-      "constraint",
-      "fulltext",
-      "unique"
-    ].includes(namelower)
-  ) {
-    return handleKeysIndexes(namelower, schema);
-  }
+  if (namelower === "id") return "\$table->id();\n";
+  if (basestatements.includes(namelower)) return handleKeysIndexes(namelower, schema);
 
   const type = splitted[1]
     .split("")
-    .map((c) => {
-      if (/[a-z]/i.test(c)) {
-        return c;
-      }
-      return "";
-    })
+    .map(c => /[a-z]/i.test(c) ? c : "")
     .join("").toLowerCase();
 
-  if (!type) {
-    throw new Error(`Invalid type ${type} for column ${name}`);
-  }
+  if (!type) throw new Error(`Invalid type ${type} for column ${name}`);
 
   const length = splitted[1]?.split("(")[1]?.split(")")[0] || undefined;
 
@@ -144,17 +125,7 @@ export const makeMigration = (schema) => {
   for (let i = 2; i < splitted.length; i++) {
     const modifier = splitted[i].toLowerCase();
     if (
-      ![
-        "default",
-        "not",
-        "charset",
-        "collate",
-        "stored",
-        "virtual",
-        "after",
-        "first",
-        "comment",
-      ].includes(modifier)
+      !statements.includes(modifier)
       && modifiers(modifier, true)
     ) {
       migration += `->${modifiers(modifier)}()`;
@@ -165,18 +136,7 @@ export const makeMigration = (schema) => {
       i++;
     }
 
-    if (
-      [
-        "default",
-        "charset",
-        "collate",
-        "stored",
-        "virtual",
-        "after",
-        "first",
-        "comment",
-      ].includes(modifier)
-    ) {
+    if (statements.slice(0, -1).includes(modifier)) {
       migration += `->${modifiers(modifier)}('${splitted[i + 1].replace(/'/g,"")}')`;
       i++;
     }
@@ -249,9 +209,7 @@ export const handleKey = (sql, type) => {
 export const handleConstraint = (sql) => {
   const splitted = sql.split(" ");
   const type = splitted[2].toLowerCase();
-  if(type === "foreign") {
-    return handleForeign(sql);
-  }
+  if(type === "foreign") return handleForeign(sql);
   return "";
 }
 
