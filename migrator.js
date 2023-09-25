@@ -104,12 +104,12 @@ export const makeMigration = (schema) => {
   const type = splitted[1]
     .split("")
     .map((c) => {
-      if (/[a-z]/.test(c)) {
+      if (/[a-z]/i.test(c)) {
         return c;
       }
       return "";
     })
-    .join("");
+    .join("").toLowerCase();
 
   const length = splitted[1]?.split("(")[1]?.split(")")[0] || undefined;
 
