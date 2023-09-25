@@ -1,6 +1,6 @@
 import { customSplit, modifiers, types } from "./util";
 
-export function differBlocksByStatementType(sql) {
+export const differBlocksByStatementType = (sql) => {
   let blocks = [];
   //   const statements = /CREATE TABLE|DROP TABLE|ALTER TABLE|TRUNCATE TABLE/gi;
   const statements = /CREATE TABLE|INSERT INTO/gi;
@@ -42,12 +42,13 @@ export function differBlocksByStatementType(sql) {
           schema += unfiltered[i];
         }
       }
+      // @regex: to remove backticks
       table = splitted[2].replace(/`/g, "");
       // schema = splitted.slice(3).join(" ");
     }
 
-    // remove parenthesis from schema start and end
-    schema = schema.replace(/^\(/, "").replace(/\)$/, "");
+    // @regex: to remove parenthesis from schema start and end
+    schema = schema.replace(/^\((.*)\)$/, '$1');
     schema = customSplit(schema);
 
     blocks.push({ schema, operation, table, modifier });
@@ -77,27 +78,27 @@ public function up(): void
 };
 
 export const makeMigration = (schema) => {
+  //  @regex: to split schema by spaces but ignore spaces inside quotes
   const splitted = schema.split(
     / (?=(?:(?:[^']*'[^']*')*[^']*$)(?:(?:[^"]*"[^"]*")*[^"]*$)(?![^\(]*\)))/
   );
-  const name = splitted[0].replace(/`/g, "").toLowerCase();
+  const name = splitted[0].replace(/`/g, "");
+  const namelower = name.toLowerCase()
+
+  if (namelower === "id") {
+    return "\$table->id();\n";
+  }
 
   if (
     [
       "primary",
       "key",
       "constraint",
-      "unique",
-      "index",
       "fulltext",
-      "spatial",
-    ].includes(name)
+      "unique"
+    ].includes(namelower)
   ) {
-    return "";
-  }
-
-  if (name === "id") {
-    return "$table->id();\n";
+    return handleKeysIndexes(namelower, schema);
   }
 
   const type = splitted[1]
@@ -152,10 +153,7 @@ export const makeMigration = (schema) => {
         "comment",
       ].includes(modifier)
     ) {
-      migration += `->${modifiers[modifier]}('${splitted[i + 1].replace(
-        /'/g,
-        ""
-      )}')`;
+      migration += `->${modifiers[modifier]}('${splitted[i + 1].replace(/'/g,"")}')`;
       i++;
     }
   }
@@ -163,3 +161,76 @@ export const makeMigration = (schema) => {
   migration += ";\n";
   return migration;
 };
+
+
+export const handleKeysIndexes = (type, sql) => {
+  switch (type) {
+    case "primary":
+      return handleKey(sql, type);
+    case "key":
+      return handleKey(sql, type);
+    case "constraint":
+      return handleConstraint(sql);
+    case "fulltext":
+      return handleKey(sql, type);
+    case "unique":
+      return handleKey(sql, type);
+    default:
+      return "";
+  }
+}
+
+export const keyBreakpoints = {
+  "primary": 2,
+  "key": 2,
+  "fulltext": 1,
+  "unique": 3,
+}
+
+export const handleKey = (sql, type) => {
+  const splitted = sql.split(" ");
+  // @regex: to remove parenthesis from column start and end, and remove backticks from column names
+  const columns = splitted[keyBreakpoints[type]].replace(/^\((.*)\)$/, '$1').split(",").map(c => c.trim().replace(/['"`]/g, '')).filter(c => c !== "id");
+
+  if(columns.length === 0) return "";
+
+  const datatype = type === "key" ? "index" : type;
+
+  return columns.length > 1 ? `\$table->${datatype}([${columns.map(c => `'${c}'`).join(",")}]);\n` : `\$table->${datatype}('${columns[0]}');\n`;
+}
+
+export const handleConstraint = (sql) => {
+  const splitted = sql.split(" ");
+  const type = splitted[2].toLowerCase();
+  if(type === "foreign") {
+    return handleForeign(sql);
+  }
+  return "";
+}
+
+export const handleForeign = (sql) => {
+  const splitted = sql.split(" ");
+  // @regex: to remove parenthesis from column start and end, and remove backticks
+  const column = splitted[4].replace(/^\((.*)\)$/, '$1').replace(/['"`]/g, '');
+  let table = "";
+  let references = "";
+  
+  let ondelete = undefined;
+  let onupdate = undefined;
+
+  if(splitted[7].toLowerCase() === "on") {
+    const refer = splitted[6].split("(");
+    // @regex: to remove backticks
+    table = refer[0].replace(/['"`]/g, '');
+    // @regex: to remove parenthesis from references start and end, and remove backticks
+    references = refer[1].replace(/^\((.*)\)$/, '$1').replace(/['"`]/g, '');
+  } else {
+    table = splitted[6].replace(/['"`]/g, '');
+    references = splitted[7].replace(/^\((.*)\)$/, '$1').replace(/['"`]/g, '');
+  }
+
+  ondelete = splitted[9].toLowerCase() === "delete" ? splitted[10].toLowerCase() : undefined;
+  onupdate = splitted[9].toLowerCase() === "update" ? splitted[10].toLowerCase() : undefined;
+
+  return `\$table->foreign('${column}')->references('${references}')->on('${table}')${ondelete ? `->onDelete('${ondelete}')` : ""}${onupdate ? `->onUpdate('${onupdate}')` : ""};\n`;
+}
