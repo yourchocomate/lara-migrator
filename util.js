@@ -1,6 +1,11 @@
 export const schemasplitregex =
   /,(?=(?:(?:[^']*'[^']*')*[^']*$)(?:(?:[^"]*"[^"]*")*[^"]*$)(?![^\(]*\)))/;
 
+/**
+ * Get data type for migration
+ * @param {string} type 
+ * @returns {string}
+ */
 export const types = (type) => {
   const types = {
     string: "string",
@@ -49,6 +54,12 @@ export const types = (type) => {
   return types[type];
 };
 
+/**
+ * Get modifier type
+ * @param {string} type 
+ * @param {boolean} ignoreError 
+ * @returns {string}
+ */
 export const modifiers = (type, ignoreError = false) => {
   const types = {
     unsigned: "unsigned",
@@ -69,12 +80,22 @@ export const modifiers = (type, ignoreError = false) => {
   return types[type];
 };
 
+/**
+ * Detects if SQL is valid
+ * @param {string} sql 
+ * @returns {boolean}
+ */
 export function detectIfValidSQL(sql) {
   const sqlRegex =
     /CREATE TABLE|INSERT INTO|UPDATE|DELETE FROM|DROP TABLE|ALTER TABLE|CREATE DATABASE|DROP DATABASE|USE|SELECT|SHOW|DESCRIBE|TRUNCATE TABLE|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER|RENAME TABLE|RENAME COLUMN|RENAME DATABASE|RENAME USER|RENAME INDEX|RENAME VIEW|RENAME EVENT|RENAME FUNCTION|RENAME PROCEDURE|RENAME TRIGGER/i;
   return sqlRegex.test(sql);
 }
 
+/**
+ * Split string by comma but ignore commas inside quotes and parentheses
+ * @param {string} str 
+ * @returns {string[]}
+ */
 export function customSplit(str) {
   const parts = [];
   let part = "";
@@ -105,6 +126,15 @@ export function customSplit(str) {
   parts.push(part.trim());
   return parts;
 }
+
+/**
+ * Migration schema template for latest laravel versions
+ * @param {string} type 
+ * @param {string} table 
+ * @param {string[]} schema 
+ * @param {string} indents 
+ * @returns {string}
+ */
 
 export const migrationSchema = (type, table, schema, indents = "") => {
   return `
