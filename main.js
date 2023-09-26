@@ -11,14 +11,19 @@ Alpine.store("errors", []);
 /**
  * @typedef {object} AlpineData
  * @property {string} sql
- * @property {string} migrations
+ * @property {string[]} migrations
+ * @property {string} selectedmigration
+ * @property {string[]} filtered
  * @property {function} init
  * @property {function} migrate
  */
 
 Alpine.data("migrator", () => ({
     sql: "",
-    migrations: "",
+    migrations: [],
+    selectedmigration: "",
+    filtered: [],
+    search: "",
 
     init() {
         console.log("migrator");
@@ -45,11 +50,24 @@ Alpine.data("migrator", () => ({
       }
 
       try {
-        this.migrations = generateMigrations(sql).join("\n\n");
+        this.migrations = generateMigrations(sql);
       } catch (error) {
         Alpine.store("errors").push(error.message);
         emitter.emit("error:cleanup", { after: 2000 }); 
       }
+    },
+
+    filter: function () {
+      const splitted = this.search.toLowerCase().split(",");
+      this.filtered = this.migrations.filter(migration => {
+        return splitted.some(search => {
+          return migration.name.toLowerCase().includes(search.trim());
+        });
+      });
+    },
+
+    copyToClipboard: function (text) {
+      navigator.clipboard.writeText(text);
     }
 
 }));
