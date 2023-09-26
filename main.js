@@ -31,7 +31,7 @@ Alpine.data("migrator", () => ({
      */
 
     migrate: function (text = "") {
-      const sql = this.sql + (text ? '\n' + (text || "") : "");
+      const sql = text || this.sql;
 
       if(sql.length === 0) {
         this.migrations = "";
