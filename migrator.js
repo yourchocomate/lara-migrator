@@ -1,4 +1,4 @@
-import { customSplit, modifiers, types } from "./util";
+import { customSplit, migrationSchema, modifiers, types } from "./util";
 
 /**
  * Function to generate migrations from SQL
@@ -74,39 +74,15 @@ export const generateMigrations = (sql) => {
 
 export const getmigration = (table, schema, type) => {
   type = type.split(" ");
-  const name = `${type[0].toLowerCase()}_${table.toLowerCase()}`
+  const name = `${type[0].toLowerCase()}_${table.toLowerCase()}`;
+  const migrationType = type[0].toLowerCase() !== "create" ? "table" : "create";
+  const migration = schema.map(makeMigration).filter(m => m.length > 0);
   return {
-    name,
-    migration: `
-    <?php
-
-      use Illuminate\\Database\\Migrations\\Migration;
-      use Illuminate\\Database\\Schema\\Blueprint;
-      use Illuminate\\Support\\Facades\\Schema;
-        
-      return new class extends Migration
-      {
-            /**
-             * Run the migrations.
-             */
-            public function up(): void
-            {
-                  Schema::${
-                    type[0].toLowerCase() !== "create" ? "table" : "create"
-                  }('${table}', function (Blueprint $table) {
-                        ${schema.map(makeMigration).filter(m => m.length > 0).join("\t\t\t\t\t\t")}                 });
-            }
-            
-            /**
-             * Reverse the migrations.
-             */
-            public function down(): void
-            {
-                  Schema::drop('${table}');
-            }
-      };`
-  }
-};
+      name,
+      migrationToCopy: migrationSchema(migrationType, table, migration, "\t\t\t"),
+      migration: migrationSchema(migrationType, table, migration, "\t\t\t\t\t\t"),
+  };
+}
 
 /**
  * Parses schema and generates migration
