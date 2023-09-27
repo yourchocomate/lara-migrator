@@ -33,7 +33,7 @@
         
         <div class="w-full flex flex-row justify-center items-center px-4">
           <h2 class="text-smtext-md text-primary font-semibold mr-4">Migrations</h2>
-          <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-4" x-model="search" x-on:keyup="filter" x-bind:placeholder="migrations.length > 1 ? 'filter migrations through (' + migrations.length + ') tables' : 'No migrations found'" />
+          <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-4" x-model="search" x-on:keyup="filter" x-bind:placeholder="migrations.length > 0 ? 'filter migrations through (' + migrations.length + ') tables' : 'No migrations found'" />
         </div>
         <template x-if="migrations.length > 0">
           <div class="inline-block w-full px-4 mt-4">
