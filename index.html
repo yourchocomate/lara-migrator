@@ -35,7 +35,7 @@
           <h2 class="text-smtext-md text-primary font-semibold mr-4">Migrations</h2>
           <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-4" x-model="search" x-on:keyup="filter" x-bind:placeholder="migrations.length > 1 ? 'filter migrations through (' + migrations.length + ') tables' : 'No migrations found'" />
         </div>
-        <template x-if="migrations.length > 1">
+        <template x-if="migrations.length > 0">
           <div class="inline-block w-full px-4 mt-4">
             <template x-for="(migration, index) in (filtered.length > 0 ? filtered : migrations)" :key="index">
               <button class="border-2 border-dashed border-primary hover:bg-primary hover:text-white py-2 px-4 rounded mb-4 truncate text-sm sm:text-md mr-4"
