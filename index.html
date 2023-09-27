@@ -43,7 +43,7 @@
             </template>
           </div>
         </template>
-        <template x-if="selectedmigration?.migration?.length > 1">
+        <template x-if="selectedmigration?.migration?.length > 0">
           <div class="flex relative px-4 w-full">
             <span @click="copyToClipboard(selectedmigration.migrationToCopy)" class="absolute z-10 right-10 top-5 bg-primary bg-opacity-90 hover:bg-opacity-100 text-white font-bold py-2 px-2 rounded h-10 w-10">
               <svg fill="#ffffff" class="w-full" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 442 442" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <polygon points="291,0 51,0 51,332 121,332 121,80 291,80 "></polygon> <polygon points="306,125 306,195 376,195 "></polygon> <polygon points="276,225 276,110 151,110 151,442 391,442 391,225 "></polygon> </g> </g></svg>
