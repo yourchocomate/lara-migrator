@@ -2,9 +2,9 @@ import "./style.css";
 import Alpine from "alpinejs";
 window.alpine = Alpine;
 
-import { emitter } from  "./emitter";
-import { generateMigrations } from "./migrator";
-import { detectIfValidSQL } from "./util";
+import { emitter } from  "@lib/emitter";
+import { generateMigrations } from "@lib/migrator";
+import { detectIfValidSQL } from "@lib/util";
 
 Alpine.store("errors", []);
 
