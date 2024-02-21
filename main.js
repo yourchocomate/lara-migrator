@@ -44,16 +44,14 @@ Alpine.data("migrator", () => ({
       }
 
       if(!detectIfValidSQL(sql)) {
-          Alpine.store("errors").push("Invalid SQL");
-          emitter.emit("error:cleanup", { after: 2000 }); 
-          return;
-      }
+        console.log("Invalid SQL");
+        return;
+      };
 
       try {
         this.migrations = generateMigrations(sql);
       } catch (error) {
-        Alpine.store("errors").push(error.message);
-        emitter.emit("error:cleanup", { after: 2000 }); 
+        console.error(error);
       }
     },
 
