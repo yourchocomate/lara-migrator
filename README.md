@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://lm.yourchocomate.one"><img src="https://lm.yourchocomate.one/logo.png" /></a>
+  <a href="https://lm.yourchocomate.one"><img src="public/logo.png" /></a>
 </p>
 <p align="center">
     ✨Migrate your SQL database to Laravel migrations✨
