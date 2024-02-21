@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="logo.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lara Migrator</title>
+  <script type="module" crossorigin src="assets/index-f9a1cedf.js"></script>
+  <link rel="stylesheet" href="assets/index-d5803582.css">
+</head>
+
+<body>
+  <div class="min-h-screen w-full px-8 py-8" x-data="migrator()">
+    <div class="flex flex-col justify-center items-center w-full">
+      <img src="logo.png" alt="Lara Migrator" class="h-[80px] sm:h-[100px]" />
+      <p class="text-sm sm:text-md mb-4">Migrate your SQL database to Laravel migrations</p>
+      <template x-if="$store.errors.length > 0">
+        <div class="flex flex-col justify-center items-center w-full">
+          <div class="flex flex-row justify-center items-center w-full">
+            <h2 class="text-md sm:text-2xl font-bold mr-4">Errors</h2>
+            <template x-for="(error, index) in $store.errors" :key="index">
+              <p x-text="error" class="mr-2 text-red-500"></p>
+              <p x-text="index + ':'"></p>
+            </template>
+          </div>
+        </div>
+      </template>
+      <div class="flex flex-col justify-center items-center w-full">
+        <div class="flex flex-col px-4 py-8 w-full">
+          <textarea id="sql" x-model="sql" x-on:input="migrate($event.target.value)"
+            x-on:paste="migrate($event.clipboardData.getData('text/plain'))"
+            class="w-full h-96 border border-gray-300 rounded-lg p-4 text-xs sm:text-sm" placeholder="Paste your SQL here"></textarea>
+        </div>
+        
+        <div class="w-full flex flex-row justify-center items-center px-4">
+          <h2 class="text-smtext-md text-primary font-semibold mr-4">Migrations</h2>
+          <input type="text" class="w-full border border-gray-300 rounded-lg py-2 px-4" x-model="search" x-on:keyup="filter" x-bind:placeholder="migrations.length > 0 ? 'filter migrations through (' + migrations.length + ') tables' : 'No migrations found'" />
+        </div>
+        <template x-if="migrations.length > 0">
+          <div class="inline-block w-full px-4 mt-4">
+            <template x-for="(migration, index) in (filtered.length > 0 ? filtered : migrations)" :key="index">
+              <button class="border-2 border-dashed border-primary hover:bg-primary hover:text-white py-2 px-4 rounded mb-4 truncate text-sm sm:text-md mr-4"
+              x-text="migration.name" x-on:click="selectedmigration = migration" x-bind:class="selectedmigration?.name === migration.name ? 'bg-primary text-white font-semibold' : 'text-gray-500'"></button>
+            </template>
+          </div>
+        </template>
+        <template x-if="selectedmigration?.migration?.length > 0">
+          <div class="flex relative px-4 w-full">
+            <span @click="copyToClipboard(selectedmigration.migrationToCopy)" class="absolute z-10 right-10 top-5 bg-primary bg-opacity-90 hover:bg-opacity-100 text-white font-bold py-2 px-2 rounded h-10 w-10">
+              <svg fill="#ffffff" class="w-full" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 442 442" xml:space="preserve" stroke="#ffffff"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <polygon points="291,0 51,0 51,332 121,332 121,80 291,80 "></polygon> <polygon points="306,125 306,195 376,195 "></polygon> <polygon points="276,225 276,110 151,110 151,442 391,442 391,225 "></polygon> </g> </g></svg>
+            </span>
+            <textarea x-html="selectedmigration.migration" class="w-full h-96 border border-gray-300 rounded-lg px-4 mt-2 text-xs sm:text-sm"
+            placeholder="Your Laravel migrations will appear here" readonly></textarea>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+  
+</body>
+
+</html>
